@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Login | Energy Predictor</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg, #89f7fe, #66a6ff);
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    width: 360px;
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0px 4px 20px rgba(0,0,0,0.2);
+}
+
+.container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #bbb;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    background: #287bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    margin-top: 15px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background: #1562d6;
+}
+
+#registerBox {
+    display: none;
+    margin-top: 15px;
+}
+
+.toggleText {
+    text-align: center;
+    margin-top: 15px;
+    color: #444;
+    cursor: pointer;
+}
+
+.toggleText:hover {
+    text-decoration: underline;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>Login</h2>
+
+    <input id="loginEmail" type="email" placeholder="Email">
+    <input id="loginPassword" type="password" placeholder="Password">
+    
+    <button onclick="loginUser()">Login</button>
+
+    <p class="toggleText" onclick="showRegister()">
+        New user? Please register
+    </p>
+
+    <!-- Registration Form -->
+    <div id="registerBox">
+        <h2>Register</h2>
+
+        <input id="regUsername" type="text" placeholder="Username">
+        <input id="regEmail" type="email" placeholder="Email">
+        <input id="regPassword" type="password" placeholder="Password">
+        <input id="regLocation" type="text" placeholder="Enter Location">
+
+        <button onclick="registerUser()">Create Account</button>
+
+        <p class="toggleText" onclick="hideRegister()">
+            Already have an account? Login
+        </p>
+    </div>
+</div>
+
+<script>
+function showRegister() {
+    document.getElementById('registerBox').style.display = "block";
+}
+
+function hideRegister() {
+    document.getElementById('registerBox').style.display = "none";
+}
+
+async function loginUser() {
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+
+    const res = await fetch('/login', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ email, password }),
+        credentials: "include"
+
+    });
+
+    const data = await res.json();
+
+    if (data.status === 'ok') {
+        if (data.role === 'admin') {
+            window.location.href = "admin.html";
+        } else {
+            window.location.href = "index.html";
+        }
+    } else {
+        alert("Login failed: " + data.message);
+    }
+}
+
+async function registerUser() {
+    const username = document.getElementById('regUsername').value;
+    const email = document.getElementById('regEmail').value;
+    const password = document.getElementById('regPassword').value;
+    const location = document.getElementById('regLocation').value.trim();
+
+    if (!location) {
+        alert("Please enter your location");
+        return;
+    }
+
+    const res = await fetch('/register', {
+        method: 'POST',
+        headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify({ username, email, password, location }),
+        credentials: "include"
+
+    });
+
+    const data = await res.json();
+    alert(data.message);
+
+    if (data.status === "ok") {
+        hideRegister();
+    }
+}
+</script>
+
+</body>
+</html>
+
+
